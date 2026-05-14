@@ -1,0 +1,8 @@
+# Production dependencies (install with: pip install -r requirements.txt)
+# Editable install (recommended for development): pip install -e ".[dev]"
+
+pydantic>=2.10,<3
+pydantic-settings>=2.7,<3
+sqlmodel>=0.0.22,<0.1
+streamlit>=1.40,<2
+python-dotenv>=1.0,<2
