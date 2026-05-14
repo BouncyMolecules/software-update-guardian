@@ -221,8 +221,12 @@ class StorageService:
                 detail="empty correlation_id",
             )
 
-        contributions_dump = TypeAdapter(list[RuleContribution]).dump_json(result.contributions).decode()
-        trail_dump = TypeAdapter(list[AuditTrailEntry]).dump_json(result.decision_audit_trail).decode()
+        contributions_dump = (
+            TypeAdapter(list[RuleContribution]).dump_json(result.contributions).decode()
+        )
+        trail_dump = (
+            TypeAdapter(list[AuditTrailEntry]).dump_json(result.decision_audit_trail).decode()
+        )
         risk_dump = result.risk_score.model_dump_json()
         full_result_json = result.model_dump_json(
             include={key: True for key in _CLASSIFICATION_RESULT_JSON_INCLUDE},
@@ -320,7 +324,11 @@ class StorageService:
         Returns:
             Same shape as :meth:`save_classification_result`.
         """
-        cid = correlation_id.strip() if correlation_id is not None else assessment_input.device_name.strip()
+        cid = (
+            correlation_id.strip()
+            if correlation_id is not None
+            else assessment_input.device_name.strip()
+        )
         return self.save_classification_result(
             correlation_id=cid,
             assessment_input=assessment_input,
@@ -493,7 +501,9 @@ class StorageService:
         if correlation_id is not None:
             trimmed = correlation_id.strip()
             if not trimmed:
-                raise StorageError("correlation_id filter must be non-empty when provided.", detail="empty")
+                raise StorageError(
+                    "correlation_id filter must be non-empty when provided.", detail="empty"
+                )
             stmt = stmt.where(AuditTrailRecord.correlation_id == trimmed)
         if classification_result_id is not None:
             stmt = stmt.where(AuditTrailRecord.classification_result_id == classification_result_id)
@@ -536,26 +546,6 @@ GuardianStorage = StorageService
 """Backward-compatible alias retained for incremental UI refactors."""
 
 
-_storage_singleton: StorageService | None = None
-
-
-def get_storage() -> StorageService:
-    """Shared storage handle for application layers (including Streamlit)."""
-    global _storage_singleton
-    if _storage_singleton is None:
-        _storage_singleton = StorageService()
-        _storage_singleton.init_db()
-    return _storage_singleton
-
-
-def reset_storage_singleton() -> None:
-    """Testing helper — drops singleton handle and closes its SQLite pool if present."""
-    global _storage_singleton
-    if _storage_singleton is not None:
-        _storage_singleton.dispose()
-    _storage_singleton = None
-
-
 __all__ = [
     "AuditLogEntry",
     "ClassificationResultRecord",
@@ -563,6 +553,4 @@ __all__ = [
     "SoftwareUpdateRecord",
     "StorageError",
     "StorageService",
-    "get_storage",
-    "reset_storage_singleton",
 ]

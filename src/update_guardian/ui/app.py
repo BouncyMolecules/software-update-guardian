@@ -7,19 +7,32 @@ from typing import TYPE_CHECKING
 
 import streamlit as st
 
+from update_guardian.core.storage import StorageService
 from update_guardian.main import configure_logging
 from update_guardian.ui.pages import dashboard, history, upload
 from update_guardian.ui.utils import session as session_utils
 from update_guardian.ui.utils import theme
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from update_guardian.ui.utils.session import ThemeMode
+
+_SESSION_KEY_STORAGE = "ug_storage_service"
+
+
+def _storage_for_session() -> StorageService:
+    """Composition root: one ``StorageService`` per browser session (Streamlit rerun-safe)."""
+    existing = st.session_state.get(_SESSION_KEY_STORAGE)
+    if isinstance(existing, StorageService):
+        return existing
+    svc = StorageService()
+    svc.init_db()
+    st.session_state[_SESSION_KEY_STORAGE] = svc
+    return svc
+
 
 logger = logging.getLogger(__name__)
 
-_PAGE_REGISTRY: dict[str, Callable[[], None]] = {
+_PAGE_REGISTRY = {
     "Dashboard": dashboard.render,
     "Classify update": upload.render,
     "History & audit": history.render,
@@ -97,4 +110,4 @@ def run_app() -> None:
     )
 
     _render_onboarding_banner()
-    _PAGE_REGISTRY[choice]()
+    _PAGE_REGISTRY[choice](_storage_for_session())

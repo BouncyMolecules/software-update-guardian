@@ -5,31 +5,45 @@ build-backend = "hatchling.build"
 [project]
 name = "software-update-guardian"
 version = "0.1.0"
-description = "Explainable, rule-traceable triage for remote software updates—Streamlit UI, deterministic classifier, SQLModel/SQLite—for Regulatory Ops, Quality Systems, and digital clinical platforms."
+description = "Structured, explainable triage for remote software updates: deterministic rules engine with stable identifiers, persistence (SQLModel/SQLite), and a Streamlit UI—built as a Regulatory Operations / Quality Systems portfolio-quality reference."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Proprietary" }
 authors = [{ name = "Ela Halilovic" }]
 maintainers = [{ name = "Ela Halilovic" }]
 keywords = [
+    "annex-11",
+    "audit-trail",
+    "change-control",
     "clinical-operations",
     "clinical-systems",
+    "computerized-system-validation",
+    "clinical-trial-technology",
     "CRO",
+    "CSV",
     "decision-support",
+    "digital-clinical-platforms",
     "digital-transformation",
+    "EU-CTR",
     "EU-MDR",
     "FDA",
     "GAMP",
     "GxP",
     "IEC-62304",
     "medical-device",
+    "part-11",
     "quality-assurance",
     "quality-systems",
     "regulatory-affairs",
     "regulatory-compliance",
     "regulatory-operations",
+    "risk-band",
     "risk-classification",
+    "risk-management",
+    "software-change",
+    "software-life-cycle",
     "software-update",
+    "SQLAlchemy",
     "sqlmodel",
     "sqlite",
     "streamlit",
@@ -38,6 +52,7 @@ keywords = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Web Environment",
+    "Intended Audience :: Developers",
     "Intended Audience :: Healthcare Industry",
     "Intended Audience :: Science/Research",
     "License :: Other/Proprietary License",
@@ -45,8 +60,10 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Office/Business",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Typing :: Typed",
 ]
 dependencies = [
@@ -65,7 +82,6 @@ dev = [
     "ruff>=0.9,<1",
     "pytest>=8.3,<9",
     "pytest-cov>=6.0,<7",
-    "types-fpdf2>=2.8,<3",
     "types-python-dateutil>=2.9,<3",
 ]
 
@@ -78,13 +94,15 @@ Repository = "https://github.com/BouncyMolecules/software-update-guardian"
 Issues = "https://github.com/BouncyMolecules/software-update-guardian/issues"
 Changelog = "https://github.com/BouncyMolecules/software-update-guardian/releases"
 Documentation = "https://github.com/BouncyMolecules/software-update-guardian#readme"
-Author = "https://www.linkedin.com/in/ela-halilovic"
 LinkedIn = "https://www.linkedin.com/in/ela-halilovic"
 ClinicalFuture = "https://clinicalfuture.substack.com"
 GitHubProfile = "https://github.com/BouncyMolecules"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/update_guardian"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/update_guardian/py.typed" = "update_guardian/py.typed"
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -130,6 +148,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 addopts = "-q --strict-markers"
 filterwarnings = ["error::DeprecationWarning"]
 
@@ -143,7 +162,9 @@ omit = [
 ]
 
 [tool.coverage.report]
-# Threshold applies after `omit` above (~550 LOC: models, classifier, storage, config).
-# Branch-aware combined coverage for measured modules (~80% today); avoids lying vs whole-package incl. UI.
-fail_under = 78
+# Threshold applies after `omit` above. The percentage is coverage.py's combined metric (lines +
+# branches) on non-omitted sources only — Streamlit entrypoints and `ui/*` stay out of scope so the
+# gate reflects the tested domain layer (`core/`, `config.py`). Set ~5 points below observed CI
+# headroom so incidental branch growth does not flake; re-baseline when adding large untested blocks.
+fail_under = 80
 show_missing = true

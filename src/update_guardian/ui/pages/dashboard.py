@@ -9,14 +9,14 @@ import streamlit as st
 
 from update_guardian.config import get_settings
 from update_guardian.core.models import ClassificationBand
-from update_guardian.core.storage import StorageError, get_storage
+from update_guardian.core.storage import StorageError, StorageService
 from update_guardian.ui.utils import caching
 from update_guardian.ui.utils import session as session_utils
 
 logger = logging.getLogger(__name__)
 
 
-def render() -> None:
+def render(storage: StorageService) -> None:
     settings = get_settings()
     st.title("Monitored portfolio")
     if settings.organization_name:
@@ -27,7 +27,9 @@ def render() -> None:
 
     try:
         with st.spinner("Loading recent assessments…"):
-            items = caching.load_recent_assessments(100, session_utils.assessment_cache_version())
+            items = caching.load_recent_assessments(
+                storage, 100, session_utils.assessment_cache_version()
+            )
     except StorageError as exc:
         logger.info("Dashboard load failed: %s", exc.message)
         st.error(exc.message)
@@ -106,7 +108,7 @@ def render() -> None:
     corr_filter = session_utils.get_selected_correlation_filter()
     if corr_filter:
         try:
-            scoped = get_storage().get_classification_history(corr_filter, limit=50)
+            scoped = storage.get_classification_history(corr_filter, limit=50)
         except StorageError as exc:
             st.warning(exc.message)
         else:

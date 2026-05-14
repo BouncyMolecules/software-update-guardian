@@ -35,6 +35,7 @@ class AssessmentProcessingError(Exception):
         super().__init__(message)
         self.detail = detail
 
+
 # ---------------------------------------------------------------------------
 # Rule identifiers — stable for change control, CAPA references, and CSV export
 # ---------------------------------------------------------------------------
@@ -220,7 +221,7 @@ def _rule_catalogue() -> tuple[RegulatoryRule, ...]:
             point_value=12,
             weight=1.0,
             rationale=(
-                "Enhancements may exceed \"bug fix\" framing if user-facing performance, claims, or "
+                'Enhancements may exceed "bug fix" framing if user-facing performance, claims, or '
                 "risk controls evolve — compare against cleared/approved intended use."
             ),
             regulatory_reference=REF_FDA_QMS_CORRECTION,
@@ -441,7 +442,9 @@ def _rule_catalogue() -> tuple[RegulatoryRule, ...]:
 
 def _correction_removal_cluster(u: SoftwareUpdate) -> bool:
     """Heuristic cluster mirroring reportability **questions** regulators ask — not a legal conclusion."""
-    clinical = u.affects_diagnostic_or_treatment_decisioning or u.affects_clinical_function_or_output
+    clinical = (
+        u.affects_diagnostic_or_treatment_decisioning or u.affects_clinical_function_or_output
+    )
     cyber = (
         u.mitigates_known_or_suspected_security_vulnerability
         or u.introduces_or_changes_connectivity_or_remote_interfaces
@@ -566,7 +569,7 @@ def _build_update_classification(
         bug_fix = (
             "Facts resemble a **defect correction** path: the declared change type is maintenance-oriented "
             "and critical clinical, labeling, and cybersecurity drivers are not asserted. Align evidence "
-            "with FDA \"correction\" maintenance concepts and EU technical documentation for software changes."
+            'with FDA "correction" maintenance concepts and EU technical documentation for software changes.'
         )
     elif update.update_type in (
         UpdateTypeIndication.ENHANCEMENT,
@@ -584,7 +587,8 @@ def _build_update_classification(
 
     corr_fired = any(c.rule_id == RULE_CORRECTION_REMOVAL_COMPOSITE for c in contributions)
     high_energy = any(
-        c.rule_id in {RULE_INTENDED_USE, RULE_CLINICAL_DECISION, RULE_SECURITY_VULN} for c in contributions
+        c.rule_id in {RULE_INTENDED_USE, RULE_CLINICAL_DECISION, RULE_SECURITY_VULN}
+        for c in contributions
     )
     if corr_fired and high_energy:
         posture = (
@@ -651,7 +655,11 @@ def _executive_narrative(
     contributions: list[RuleContribution],
     update: SoftwareUpdate,
 ) -> tuple[str, list[str]]:
-    scored = [c for c in contributions if c.points_awarded != 0 or c.rule_id == RULE_CORRECTION_REMOVAL_COMPOSITE]
+    scored = [
+        c
+        for c in contributions
+        if c.points_awarded != 0 or c.rule_id == RULE_CORRECTION_REMOVAL_COMPOSITE
+    ]
     ordered = sorted(scored, key=lambda c: abs(c.points_awarded), reverse=True)
     top = ", ".join(f"{c.rule_id}" for c in ordered[:3]) or "no scored factors"
 

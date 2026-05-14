@@ -361,7 +361,7 @@ class UpdateClassification(BaseModel):
             max_length=8000,
             description=(
                 "Explains whether facts resemble pure defect correction vs enhancement — framed for FDA "
-                "\"correction\" maintenance and EU postmarket change expectations."
+                '"correction" maintenance and EU postmarket change expectations.'
             ),
         ),
     ]
@@ -401,7 +401,9 @@ class AuditTrailEntry(BaseModel):
             description="Machine-oriented step key (e.g., RULE_EVALUATION, BAND_SELECTED).",
         ),
     ]
-    message: Annotated[str, Field(min_length=1, max_length=8000, description="Auditor-facing message.")]
+    message: Annotated[
+        str, Field(min_length=1, max_length=8000, description="Auditor-facing message.")
+    ]
     rule_id: Annotated[
         str | None,
         Field(description="Populated when the entry relates to a specific rule id."),
@@ -436,7 +438,11 @@ class ClassificationResult(BaseModel):
     )
     executive_summary: Annotated[
         str,
-        Field(min_length=1, max_length=12000, description="Markdown-friendly narrative for leadership."),
+        Field(
+            min_length=1,
+            max_length=12000,
+            description="Markdown-friendly narrative for leadership.",
+        ),
     ]
     recommended_next_steps: list[str] = Field(
         description="Action checklist — procedural, not a substitute for SOPs.",

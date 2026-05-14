@@ -34,7 +34,9 @@ def ensure_defaults() -> None:
 
 def bump_assessment_cache() -> None:
     """Call after mutating assessments so cached reads refresh."""
-    st.session_state[KEY_ASSESSMENT_CACHE_BUMP] = int(st.session_state[KEY_ASSESSMENT_CACHE_BUMP]) + 1
+    st.session_state[KEY_ASSESSMENT_CACHE_BUMP] = (
+        int(st.session_state[KEY_ASSESSMENT_CACHE_BUMP]) + 1
+    )
 
 
 def assessment_cache_version() -> int:

@@ -11,22 +11,18 @@ import streamlit as st
 if TYPE_CHECKING:
     from update_guardian.core.models import PersistedAssessment
 
-from update_guardian.core.storage import StorageError, get_storage
+from update_guardian.core.storage import StorageError, StorageService
 from update_guardian.ui.utils import caching
 from update_guardian.ui.utils import session as session_utils
 
 logger = logging.getLogger(__name__)
 
 
-def render() -> None:
+def render(storage: StorageService) -> None:
     st.title("History & audit")
-    st.caption("Immutable snapshots with deterministic rule traces — export via your browser as needed.")
-
-    try:
-        storage = get_storage()
-    except StorageError as exc:
-        st.error(exc.message)
-        return
+    st.caption(
+        "Immutable snapshots with deterministic rule traces — export via your browser as needed."
+    )
 
     col_f, col_r = st.columns([2, 1])
     with col_f:
@@ -51,7 +47,9 @@ def render() -> None:
             if active_filter:
                 items = storage.get_classification_history(active_filter, limit=200)
             else:
-                items = caching.load_recent_assessments(200, session_utils.assessment_cache_version())
+                items = caching.load_recent_assessments(
+                    storage, 200, session_utils.assessment_cache_version()
+                )
     except StorageError as exc:
         logger.info("History query failed: %s", exc.message)
         st.error(exc.message)
@@ -112,7 +110,9 @@ def render() -> None:
             st.dataframe(rows, use_container_width=True, hide_index=True)
 
     with tab_engine:
-        st.caption("Deterministic evaluation order from the rules engine — suitable for QMS appendices.")
+        st.caption(
+            "Deterministic evaluation order from the rules engine — suitable for QMS appendices."
+        )
         trail = [
             {
                 "Step": entry.step,
@@ -137,7 +137,9 @@ def render() -> None:
             st.error(exc.message)
         else:
             if not db_audits:
-                st.info("No audit rows matched this selection — the record may predate audit capture.")
+                st.info(
+                    "No audit rows matched this selection — the record may predate audit capture."
+                )
             else:
                 st.dataframe(
                     [

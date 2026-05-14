@@ -16,7 +16,7 @@ from update_guardian.core.models import (
     SoftwareSafetyClass,
     UpdateTypeIndication,
 )
-from update_guardian.core.storage import StorageError, get_storage
+from update_guardian.core.storage import StorageError, StorageService
 from update_guardian.ui.utils import session as session_utils
 
 logger = logging.getLogger(__name__)
@@ -40,6 +40,7 @@ def _merge_notes(*, uploaded_document: str, manual_notes: str) -> str:
 
 def _render_pending_review(
     *,
+    storage: StorageService,
     assessment_input: AssessmentInput,
     result: ClassificationResult,
     correlation_id: str,
@@ -68,9 +69,11 @@ def _render_pending_review(
 
     col_save, col_clear = st.columns(2)
     with col_save:
-        if st.button("Persist to local audit database", type="primary", key="ug_save_classification"):
+        if st.button(
+            "Persist to local audit database", type="primary", key="ug_save_classification"
+        ):
             try:
-                get_storage().save_assessment(
+                storage.save_assessment(
                     assessment_input,
                     result,
                     correlation_id=correlation_id if correlation_id.strip() else None,
@@ -92,7 +95,7 @@ def _render_pending_review(
             st.rerun()
 
 
-def render() -> None:
+def render(storage: StorageService) -> None:
     st.title("Classify update")
     st.caption(
         "Upload release notes or describe the change, then confirm structured facts. "
@@ -110,6 +113,7 @@ def render() -> None:
             session_utils.clear_pending_classification()
         else:
             _render_pending_review(
+                storage=storage,
                 assessment_input=loaded_input,
                 result=loaded_result,
                 correlation_id=corr,
@@ -216,7 +220,9 @@ def render() -> None:
             uploaded_text = file.getvalue().decode("utf-8", errors="replace")
         except Exception:
             logger.exception("Failed to decode uploaded document")
-            st.error("The uploaded document could not be read as UTF-8 text. Save as .txt and retry.")
+            st.error(
+                "The uploaded document could not be read as UTF-8 text. Save as .txt and retry."
+            )
             return
         if len(uploaded_text) > _MAX_SUMMARY_CHARS:
             st.warning(
