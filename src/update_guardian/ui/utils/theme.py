@@ -117,6 +117,70 @@ def apply_theme(mode: ThemeMode) -> None:
                 box-shadow: 0 6px 24px {t["shadow"]};
             }}
 
+            .ug-onboarding-shell {{
+                background: {t["bg_card"]};
+                border: 1px solid {t["border"]};
+                border-radius: 12px;
+                padding: 1.5rem 1.75rem 1.25rem 1.75rem;
+                margin-bottom: 1.5rem;
+                box-shadow: 0 8px 32px {t["shadow"]};
+                border-top: 3px solid {t["accent"]};
+            }}
+
+            .ug-onboarding-shell h3 {{
+                margin-top: 0;
+                margin-bottom: 0.35rem;
+                color: {t["navy"]};
+                font-size: 1.2rem;
+                font-weight: 600;
+                border-bottom: none;
+                padding-bottom: 0;
+            }}
+
+            .ug-onboarding-meta {{
+                font-size: 0.8rem;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                color: {t["muted"]};
+                margin-bottom: 0.75rem;
+            }}
+
+            .ug-onboarding-body {{
+                color: {t["text"]};
+                font-size: 1rem;
+                line-height: 1.55;
+                margin: 0;
+            }}
+
+            .ug-onboarding-body p {{
+                margin: 0 0 0.65rem 0;
+            }}
+
+            .ug-onboarding-body p:last-child {{
+                margin-bottom: 0;
+            }}
+
+            .ug-onboarding-dots {{
+                display: flex;
+                gap: 0.45rem;
+                align-items: center;
+                justify-content: center;
+                margin: 1rem 0 0.5rem 0;
+            }}
+
+            .ug-onboarding-dot {{
+                width: 8px;
+                height: 8px;
+                border-radius: 999px;
+                background: {t["border"]};
+                transition: background 0.15s ease, transform 0.15s ease;
+            }}
+
+            .ug-onboarding-dot.active {{
+                background: {t["accent"]};
+                transform: scale(1.15);
+            }}
+
             .stButton button[kind="primary"] {{
                 background-color: {t["accent"]};
                 border-color: {t["accent"]};
@@ -141,3 +205,8 @@ def apply_theme(mode: ThemeMode) -> None:
 def onboarding_banner_class() -> str:
     """CSS class name for the onboarding callout wrapper."""
     return "ug-banner"
+
+
+def onboarding_carousel_shell_class() -> str:
+    """CSS class for the onboarding carousel card."""
+    return "ug-onboarding-shell"
